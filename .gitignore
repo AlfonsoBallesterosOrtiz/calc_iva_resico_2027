@@ -1,0 +1,12 @@
+venv/ 
+.venv/ 
+__pycache__/ 
+*.pyc 
+.env 
+*.cer 
+*.key 
+*.pfx 
+*.pdf 
+*.xml 
+*.zip 
+.DS_Store

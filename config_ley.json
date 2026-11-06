@@ -1,0 +1,27 @@
+{
+  "fecha_revision": "06-nov-2026",
+  "referencia_legal": "Ley de Ingresos de la Federación 2027, artículo 25, fracción XVIII [VERIFICAR_NUMERACION_DOF]",
+  "estatus": "La Ley de Ingresos 2027 fue aprobada por el Congreso (Senado, 27-oct-2026) y enviada al Ejecutivo. Falta su publicación en el DOF y que el SAT emita las reglas del aviso. Revisado el [FECHA_REVISION].",
+  "tasas": {
+    "iva_general": 0.16,
+    "iva_frontera": 0.08,
+    "iva_opcion_resico": 0.07
+  },
+  "limite_resico_pf_anual": 5000000,
+  "verificar_limite": true,
+  "zona_gris_pct": 0.015,
+  "por_validar": [
+    "Tratamiento de ingresos a tasa 0 % o exentos bajo el esquema de opción del 7 %.",
+    "Mecanismo de acreditamiento o solicitud de devolución si resulta saldo a favor por retenciones en la opción del 7 %.",
+    "Tratamiento del IVA pagado en importaciones definitivas bajo el esquema del 7 %."
+  ],
+  "salvedades": [
+    "Estimación orientativa, no sustituye asesoría fiscal personalizada.",
+    "Se basa en una opción de la Ley de Ingresos 2027 pendiente de publicación en el DOF y de reglas del SAT; puede cambiar.",
+    "Supone promedios mensuales iguales durante 12 meses; en la práctica se calcula mes a mes y los meses con compras grandes pueden dar saldos a favor.",
+    "Solo cuenta IVA acreditable de gastos con factura a nombre del cliente y relacionados con su actividad; si no lo tiene a la mano, el resultado cambia.",
+    "No incluye ISR (en RESICO persona física los gastos no lo reducen) ni retenciones de ISR.",
+    "Ingresos exentos o a tasa 0 %, importaciones y saldos a favor por retenciones requieren revisión (pendiente de confirmar).",
+    "La opción es por todo 2027, por meses completos y exige aviso al SAT dentro de 30 días del primer cobro."
+  ]
+}
