@@ -1,4 +1,4 @@
-"""Motor de cálculo determinista para comparar IVA general vs. opción 7 % en RESICO 2027."""
+"""Motor de cálculo determinista para evaluar la opción de IVA al 7 % en RESICO 2027."""
 
 from dataclasses import dataclass
 from typing import List, Optional
@@ -6,14 +6,17 @@ from typing import List, Optional
 
 @dataclass(frozen=True)
 class ResultadoCalculo:
-    """Estructura inmutable que contiene todos los resultados, métricas y avisos del cálculo."""
+    """Estructura de datos que almacena las cifras, razones de equilibrio, veredicto y avisos."""
     b_anual: float
     iva_trasladado_anual: float
     iva_acreditable_anual: float
     retencion_anual: float
     pago_normal_anual: float
-    pago_opcion_anual: float
+    opcion_matematica: float
+    opcion_pago_anual: float
+    saldo_favor_opcion: float
     ahorro_anual: float
+    ahorro_si_se_recupera: float
     ahorro_pct: float
     r_acreditable: float
     r_equilibrio: float
@@ -39,9 +42,9 @@ def calcular_comparativa(
     compra_grande: float = 0.0,
     config: Optional[dict] = None
 ) -> ResultadoCalculo:
-    """Calcula la comparativa aritmética entre el régimen general de IVA y la opción del 7 % para RESICO."""
+    """Ejecuta la aritmética para comparar el IVA general con la opción del 7 % bajo criterio conservador."""
     if config is None:
-        raise ValueError("Se requiere el diccionario de configuración de ley.")
+        raise ValueError("Se requiere el diccionario de configuración legal.")
 
     t = obtener_tasa_region(region, config)
     t_op = float(config["tasas"]["iva_opcion_resico"])
@@ -50,51 +53,29 @@ def calcular_comparativa(
 
     avisos: List[str] = []
 
-    # 1. Base gravada anual
-    # b_anual = 12.0 * float(ingresos)
-
-    # 2. Impuesto causado y acreditamiento
-    # iva_tras = b_anual * t
-    # acred = (12.0 * float(gastos) + float(compra_grande)) * t
-
-    # 3. Retenciones anualizadas (acotadas al IVA trasladado en régimen normal)
-    # ret_anual_solicitada = 12.0 * float(iva_retenido)
-    # ret = min(ret_anual_solicitada, iva_tras)
-
-    # 4. Impuesto a pagar o saldo a favor
-    # normal = iva_tras - acred - ret
-    # opcion = (b_anual * t_op) - ret
-    # ahorro = normal - opcion
-
-    # 5. Ratios de análisis y equilibrio
-    # pct = (ahorro / b_anual) if b_anual > 0 else 0.0
-    # r = (acred / b_anual) if b_anual > 0 else 0.0
-    # r_eq = t - t_op
-    #eq_pesos = b_anual * r_eq
-
-# 1. Base gravada anual
+    # 1. Base gravada y montos con redondeo a 2 decimales para precisión contable
     b_anual = round(12.0 * float(ingresos), 2)
-
-    # 2. Impuesto causado y acreditamiento
     iva_tras = round(b_anual * t, 2)
     acred = round((12.0 * float(gastos) + float(compra_grande)) * t, 2)
-
-    # 3. Retenciones anualizadas (acotadas al IVA trasladado en régimen normal)
     ret_anual_solicitada = round(12.0 * float(iva_retenido), 2)
     ret = min(ret_anual_solicitada, iva_tras)
 
-    # 4. Impuesto a pagar o saldo a favor
+    # 2. Esquema normal y opción (criterio conservador)
     normal = round(iva_tras - acred - ret, 2)
     opcion = round((b_anual * t_op) - ret, 2)
-    ahorro = round(normal - opcion, 2)
+    opcion_pago = max(opcion, 0.0)
+    saldo_op = max(-opcion, 0.0)
 
-    # 5. Ratios de análisis y equilibrio
+    ahorro = round(normal - opcion_pago, 2)
+    ahorro_si_se_recupera = round(normal - opcion, 2)
+
+    # 3. Ratios de análisis y equilibrio
     pct = (ahorro / b_anual) if b_anual > 0 else 0.0
     r = (acred / b_anual) if b_anual > 0 else 0.0
     r_eq = round(t - t_op, 4)
     eq_pesos = round(b_anual * r_eq, 2)
 
-    # 6. Detección de casos especiales
+    # 4. Verificación de casos especiales sin veredicto
     es_caso_especial = False
     veredicto = "CASO_ESPECIAL"
 
@@ -105,7 +86,7 @@ def calcular_comparativa(
     if b_anual > limite_resico:
         es_caso_especial = True
         avisos.append(
-            f"Los ingresos proyectados (${b_anual:,.0f}) superan el límite de RESICO (${limite_resico:,.0f}). "
+            f"Los ingresos anuales estimados (${b_anual:,.0f}) superan el límite de RESICO (${limite_resico:,.0f}). "
             "No tributaría en este régimen."
         )
 
@@ -113,14 +94,20 @@ def calcular_comparativa(
         es_caso_especial = True
         avisos.append("Los ingresos cobrados mensuales deben ser mayores a cero para realizar la estimación.")
 
-    # 7. Reglas de frontera y saldo a favor en opción
+    # 5. Notas legales obligatorias y saldos a favor
     if region == "frontera":
         avisos.append("Con 8 % de IVA el beneficio máximo es 1 punto sobre tus ingresos.")
 
     if opcion < 0:
-        avisos.append("La opción resulta en saldo a favor por retenciones; su devolución o acreditamiento está PENDIENTE DE CONFIRMAR en reglas del SAT.")
+        avisos.append(
+            f"Muestra posible saldo a favor de ${saldo_op:,.0f} por confirmar en reglas del SAT. "
+            "El veredicto conservador no cuenta este saldo como dinero recuperado."
+        )
 
-    # 8. Determinación del veredicto si no es caso especial
+    if normal < 0 or opcion < 0:
+        avisos.append("Un saldo a favor no es dinero en el bolsillo hasta que se acredita o se devuelve; hay que revisar el caso.")
+
+    # 6. Veredicto cuando no es caso especial
     if not es_caso_especial:
         if pct > zona_gris_pct:
             veredicto = "CONVIENE"
@@ -135,8 +122,11 @@ def calcular_comparativa(
         iva_acreditable_anual=acred,
         retencion_anual=ret,
         pago_normal_anual=normal,
-        pago_opcion_anual=opcion,
+        opcion_matematica=opcion,
+        opcion_pago_anual=opcion_pago,
+        saldo_favor_opcion=saldo_op,
         ahorro_anual=ahorro,
+        ahorro_si_se_recupera=ahorro_si_se_recupera,
         ahorro_pct=pct,
         r_acreditable=r,
         r_equilibrio=r_eq,

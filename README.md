@@ -1,11 +1,10 @@
 # Calculadora Interna: IVA 7% RESICO 2027
 
-Herramienta de uso interno en llamadas para prospectar clientes en RESICO PF.
+Herramienta interna en llamadas para prospectar clientes RESICO PF.
 
-## Instalación y ejecución (Windows)
-1. Abrir PowerShell en esta carpeta.
-2. Crear un entorno virtual e instalar dependencias:
-   ```powershell
-   python -m venv venv
-   .\venv\Scripts\activate
-   pip install -r requirements.txt
+## Instalación y ejecución (Windows con Cmder o PowerShell)
+1. Ubícate en la carpeta del proyecto.
+2. Crea y activa el entorno virtual:
+   ```cmd
+   py -3.14 -m venv venv
+   venv\Scripts\activate.bat

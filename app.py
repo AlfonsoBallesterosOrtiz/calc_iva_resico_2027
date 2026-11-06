@@ -1,4 +1,4 @@
-"""Aplicación de Streamlit para estimar la conveniencia de la opción de IVA al 7 % en RESICO 2027."""
+"""Interfaz gráfica de Streamlit para estimar la opción de IVA al 7 % en llamadas con prospectos."""
 
 import json
 from pathlib import Path
@@ -7,21 +7,19 @@ import calc_iva7
 
 
 def cargar_configuracion() -> dict:
-    """Lee el archivo JSON local de configuración legal y devuelve un diccionario con sus parámetros."""
-    ruta_json = Path(__file__).parent / "config_ley.json"
-    with open(ruta_json, "r", encoding="utf-8") as f:
+    """Carga los parámetros normativos y textos fijos desde el archivo JSON sin persistir datos."""
+    ruta_cfg = Path(__file__).parent / "config_ley.json"
+    with open(ruta_cfg, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
 def formatear_moneda(cantidad: float) -> str:
-    """Convierte un valor numérico a formato de moneda mexicana en pesos enteros sin decimales."""
-    if cantidad < 0:
-        return f"-${abs(cantidad):,.0f}"
-    return f"${cantidad:,.0f}"
+    """Formatea una cantidad numérica en formato entero de pesos mexicanos sin signo negativo explícito."""
+    return f"${abs(cantidad):,.0f}"
 
 
 def aplicar_ejemplo(region: str, ing: int, gas: int, ret: int, compra: int, exentos: bool) -> None:
-    """Actualiza las variables de estado en memoria para precargar un vector de prueba en la interfaz."""
+    """Precarga en session_state los parámetros de un vector de ejemplo para agilizar la llamada."""
     st.session_state["region"] = region
     st.session_state["ingresos"] = ing
     st.session_state["gastos"] = gas
@@ -31,7 +29,7 @@ def aplicar_ejemplo(region: str, ing: int, gas: int, ret: int, compra: int, exen
 
 
 def limpiar_formulario() -> None:
-    """Restablece los campos de entrada a sus valores iniciales en blanco."""
+    """Restablece los campos de captura a ceros y textos vacíos en la memoria de la sesión."""
     st.session_state["region"] = "general"
     st.session_state["ingresos"] = 0
     st.session_state["gastos"] = 0
@@ -42,48 +40,46 @@ def limpiar_formulario() -> None:
     st.session_state["notas_llamada"] = ""
 
 
-# Configuración de página
 st.set_page_config(page_title="Calculadora IVA 7% RESICO", layout="centered")
 
 config = cargar_configuracion()
 
-# Inicialización de estado en memoria
 if "region" not in st.session_state:
     limpiar_formulario()
 
-# 1. Título y Estatus Legal
+# 1. Título y recuadro de estatus legal normativo
 st.title("Calculadora interna: IVA al 7 % en RESICO 2027")
 
 texto_estatus = config["estatus"].replace("[FECHA_REVISION]", config.get("fecha_revision", "06-nov-2026"))
 st.warning(f"**ESTATUS LEGAL:** {texto_estatus}")
 
-# 2. Barra lateral con ejemplos
+# 2. Barra lateral con ejemplos y limpieza
 with st.sidebar:
-    st.subheader("Casos de ejemplo rápidos")
-    st.caption("Cifras de referencia para llamadas, no representan datos del cliente.")
+    st.subheader("Ejemplos rápidos para llamada")
+    st.caption("Ejemplo, no son cifras del cliente:")
     if st.button("Ejemplo V1: Servicios (gastos bajos)"):
         aplicar_ejemplo("general", 50000, 5000, 0, 0, False)
     if st.button("Ejemplo V2: Comercio (gastos altos)"):
         aplicar_ejemplo("general", 100000, 70000, 0, 0, False)
-    if st.button("Ejemplo V6: Inversión en equipo"):
+    if st.button("Ejemplo V6: Compra de equipo"):
         aplicar_ejemplo("general", 40000, 4000, 0, 116000, False)
     st.divider()
     if st.button("Limpiar datos"):
         limpiar_formulario()
 
 # 3. Entradas de datos
-col_meta1, col_meta2 = st.columns(2)
-with col_meta1:
+col_apoyo1, col_apoyo2 = st.columns(2)
+with col_apoyo1:
     nombre_prospecto = st.text_input(
         "Nombre del prospecto (opcional)",
         value=st.session_state.get("nombre_prospecto", ""),
-        help="Solo se muestra en pantalla durante la llamada; no se guarda en disco."
+        help="Solo visible en tu pantalla durante la llamada. No se guarda."
     )
-with col_meta2:
+with col_apoyo2:
     notas_llamada = st.text_input(
-        "Notas breves de la llamada (opcional)",
+        "Notas de la llamada (opcional)",
         value=st.session_state.get("notas_llamada", ""),
-        help="Apuntes rápidos de contexto para el contador."
+        help="Apuntes internos temporales para la conversación."
     )
 
 region = st.radio(
@@ -109,7 +105,7 @@ hay_exentos_o_tasa0 = st.checkbox(
 )
 
 gastos = st.number_input(
-    "Gastos y compras con IVA al mes (sin IVA)",
+    "Gastos y compras con IVA al mes, sin IVA",
     min_value=0,
     step=1000,
     format="%d",
@@ -123,22 +119,22 @@ iva_retenido = st.number_input(
     step=1000,
     format="%d",
     key="iva_retenido",
-    help="Por ejemplo, retenciones del 10.6667 % de personas morales a servicios profesionales."
+    help="Retenciones que te efectúan personas morales (ej. servicios profesionales)."
 )
 
 compra_grande = st.number_input(
-    "Compra o inversión grande única en el año, sin IVA (opcional)",
+    "Compra o inversión grande del año, sin IVA (opcional)",
     min_value=0,
     step=1000,
     format="%d",
     key="compra_grande",
-    help="Maquinaria, equipo de transporte o mobiliario indispensable con factura e IVA."
+    help="Compra única anual de equipo o mobiliario indispensable con IVA."
 )
 
 st.write("")
-btn_calcular = st.button("Calcular comparativa", type="primary", use_container_width=True)
+btn_calcular = st.button("Calcular", type="primary", use_container_width=True)
 
-# 4. Procesamiento de resultados
+# 4. Procesamiento y presentación de resultados
 if btn_calcular or ingresos > 0 or hay_exentos_o_tasa0:
     res = calc_iva7.calcular_comparativa(
         region=region,
@@ -152,13 +148,12 @@ if btn_calcular or ingresos > 0 or hay_exentos_o_tasa0:
 
     st.divider()
 
-    # Encabezado personalizado si se especificó nombre
     if nombre_prospecto.strip():
-        st.subheader(f"Estimación orientativa para: {nombre_prospecto.strip()}")
+        st.subheader(f"Estimación para: {nombre_prospecto.strip()}")
 
-    # Mensajes principales según veredicto
-    ahorro_abs = formatear_moneda(abs(res.ahorro_anual))
+    ahorro_abs = formatear_moneda(res.ahorro_anual)
 
+    # Mensajes por veredicto estricto
     if res.veredicto == "CONVIENE":
         st.success(
             f"✅ **CONVIENE:** Con estos datos, la opción del 7 % podría costar aproximadamente "
@@ -176,78 +171,97 @@ if btn_calcular or ingresos > 0 or hay_exentos_o_tasa0:
             f"Un cambio en sus gastos puede inclinar la balanza."
         )
     else:
-        st.warning("⚠️ **CASO ESPECIAL:** No es posible emitir un veredicto automático con los datos capturados.")
+        st.warning("⚠️ **CASO ESPECIAL:** No se emite veredicto automático. Requiere análisis manual.")
 
-    # Mostrar avisos normativos derivados del cálculo
+    # Avisos normativos y notas de saldos
     for av in res.avisos:
         st.caption(f"📌 {av}")
 
-    # Métricas y comparativa anual/mensual
     if not res.es_caso_especial:
-        m1, m2, m3 = st.columns(3)
-        with m1:
+        # Etiquetas dinámicas para evitar números negativos
+        if res.pago_normal_anual < 0:
+            etiqueta_normal = "Saldo a favor hoy"
+            valor_normal_str = formatear_moneda(res.pago_normal_anual)
+            sub_normal = f"Promedio mensual a favor: {formatear_moneda(res.pago_normal_anual / 12)}"
+        else:
+            etiqueta_normal = "Pagaría hoy (con acreditamiento)"
+            valor_normal_str = formatear_moneda(res.pago_normal_anual)
+            sub_normal = f"Promedio mensual: {formatear_moneda(res.pago_normal_anual / 12)}"
+
+        if res.opcion_matematica < 0:
+            etiqueta_opcion = "Posible saldo a favor con la opción (por confirmar)"
+            valor_opcion_str = formatear_moneda(res.saldo_favor_opcion)
+            sub_opcion = f"Pago inmediato estimado: $0 (remanente: {formatear_moneda(res.saldo_favor_opcion)})"
+        else:
+            etiqueta_opcion = "Pagaría con la opción 7 %"
+            valor_opcion_str = formatear_moneda(res.opcion_pago_anual)
+            sub_opcion = f"Promedio mensual: {formatear_moneda(res.opcion_pago_anual / 12)}"
+
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            st.metric(label=etiqueta_normal, value=valor_normal_str, help=sub_normal)
+        with c2:
+            st.metric(label=etiqueta_opcion, value=valor_opcion_str, help=sub_opcion)
+        with c3:
             st.metric(
-                label="Pagaría hoy (con acreditamiento)",
-                value=formatear_moneda(res.pago_normal_anual),
-                help=f"Equivalente mensual aproximado: {formatear_moneda(res.pago_normal_anual / 12)}"
-            )
-        with m2:
-            st.metric(
-                label="Pagaría con la opción 7 %",
-                value=formatear_moneda(res.pago_opcion_anual),
-                help=f"Equivalente mensual aproximado: {formatear_moneda(res.pago_opcion_anual / 12)}"
-            )
-        with m3:
-            st.metric(
-                label="Diferencia al año",
+                label="Diferencia al año (base conservadora)",
                 value=formatear_moneda(res.ahorro_anual),
-                delta=f"{res.ahorro_pct * 100:.1f} % de ingresos",
-                help="Positivo significa que la opción del 7 % resulta más barata."
+                delta=f"{res.ahorro_pct * 100:.1f} % s/ingresos",
+                help="Positivo indica que la opción cuesta menos. Negativo indica que seguir como está es mejor."
             )
 
-        # Gráfica de barras comparativa
+        # Gráfica de barras comparativa (valores absolutos con piso en 0 para pagos)
         datos_grafica = {
-            "Régimen General": max(0.0, res.pago_normal_anual),
-            "Opción 7 %": max(0.0, res.pago_opcion_anual)
+            "Régimen General (pago neto)": max(0.0, res.pago_normal_anual),
+            "Opción 7 % (pago efectivo)": res.opcion_pago_anual
         }
         st.bar_chart(datos_grafica)
 
-        # Frase de punto de equilibrio
+        # Frase de equilibrio
         pct_eq = res.r_equilibrio * 100
         st.write(
             f"💡 **Punto de equilibrio:** La opción deja de convenir si su IVA acreditable al año supera "
             f"**{formatear_moneda(res.equilibrio_pesos)}** (≈ {pct_eq:.1f} % de lo que cobra)."
         )
 
-        # Guion sugerido para leer durante la llamada
+        # Guion para la llamada (4 a 6 líneas listas para copiar)
         st.subheader("Guion para la llamada")
-        ahorro_texto = f"{formatear_moneda(abs(res.ahorro_anual))} al año"
-        if res.veredicto == "CONVIENE":
-            resultado_verbal = f"la opción del 7 % podría costarte aproximadamente {ahorro_texto} menos"
-        elif res.veredicto == "NO_CONVIENE":
-            resultado_verbal = f"te convendría seguir igual, pues la opción te saldría cerca de {ahorro_texto} más cara al perder deducciones"
+        if res.pago_normal_anual < 0:
+            resumen_actual = f"hoy tendrías un saldo a favor estimado de {formatear_moneda(res.pago_normal_anual)}"
         else:
-            resultado_verbal = f"la diferencia es mínima (cerca de {ahorro_texto}), por lo que cualquier gasto nuevo cambia el resultado"
+            resumen_actual = f"hoy pagarías aproximadamente {formatear_moneda(res.pago_normal_anual)} de IVA al año"
 
-        guion = (
-            f"• Con tus ingresos proyectados de {formatear_moneda(res.b_anual)} al año y tus gastos habituales,\n"
-            f"• calculamos que hoy pagarías de IVA neto cerca de {formatear_moneda(res.pago_normal_anual)}, contra {formatear_moneda(res.pago_opcion_anual)} con la opción al 7 %.\n"
-            f"• En resumen: {resultado_verbal}.\n"
-            f"• La opción deja de ser atractiva si tus compras y gastos con IVA superan {formatear_moneda(res.equilibrio_pesos)} anuales de puro impuesto.\n"
-            f"• Esta cifra es solo una estimación; revisamos su caso con documentos antes de decidir."
-        )
-        st.code(guion, language="markdown")
+        if res.opcion_matematica < 0:
+            resumen_op = f"con el 7 % pagarías $0 y generarías un posible saldo a favor de {formatear_moneda(res.saldo_favor_opcion)}"
+        else:
+            resumen_op = f"con la opción al 7 % pagarías cerca de {formatear_moneda(res.opcion_pago_anual)}"
 
-# 5. Salvedades normativas (siempre visibles)
+        if res.veredicto == "CONVIENE":
+            resumen_ahorro = f"la opción del 7 % podría costarte aproximadamente {formatear_moneda(res.ahorro_anual)} menos al año"
+        elif res.veredicto == "NO_CONVIENE":
+            resumen_ahorro = f"seguir como estás te convendría más, ahorrándote cerca de {formatear_moneda(res.ahorro_anual)} al conservar acreditamientos"
+        else:
+            resumen_ahorro = f"la diferencia es mínima ({formatear_moneda(res.ahorro_anual)} al año) y cualquier gasto la mueve"
+
+        lineas_guion = [
+            f"• Con tus ingresos anuales proyectados de {formatear_moneda(res.b_anual)} y tus gastos declarados,",
+            f"• {resumen_actual}, mientras que {resumen_op}.",
+            f"• En conclusión: {resumen_ahorro}.",
+            f"• El punto de equilibrio es {formatear_moneda(res.equilibrio_pesos)} de IVA acreditable anual (si gastas más con factura, la opción pierde ventaja).",
+            "• Recuerda que esta es una estimación; revisamos su caso con documentos antes de decidir."
+        ]
+        st.code("\n".join(lineas_guion), language="markdown")
+
+# 5. Salvedades normativas obligatorias (siempre visibles)
 st.divider()
 st.subheader("Salvedades indispensables")
-for num, salv in enumerate(config["salvedades"], start=1):
-    st.write(f"**{num}.** {salv}")
+for idx, salv in enumerate(config["salvedades"], start=1):
+    st.write(f"**{idx}.** {salv}")
 
 # 6. Aspectos pendientes de confirmar
 st.write("")
-st.caption("**Aspectos pendientes de confirmar por el SAT o texto final DOF:**")
-for item in config["por_validar"]:
-    st.caption(f"• {item}")
+st.markdown("**Pendiente de confirmar (DOF / reglas misceláneas SAT):**")
+for pendiente in config["por_validar"]:
+    st.caption(f"• {pendiente}")
 
 st.caption("Herramienta de uso interno para prospectiva en llamadas. Despacho Contable RESICO PF.")
