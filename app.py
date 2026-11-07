@@ -6,6 +6,243 @@ import streamlit as st
 import calc_iva7
 
 
+def aplicar_estilos() -> None:
+    """Inyecta CSS personalizado basado en la paleta y tokens de diseño."""
+    st.markdown(
+        """
+        <style>
+        @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700&family=Vidaloka&display=swap');
+
+        :root {
+            /* Paleta principal */
+            --color-primario: #6b9080;
+            --color-secundario: #a4c3b2;
+            --color-fondo-suave: #cce3de;
+            --color-fondo-tarjeta: #eaf4f4;
+            --color-fondo-base: #f6fff8;
+
+            /* Tipografía y neutros */
+            --color-texto: #1f2e2b;
+            --color-texto-muted: #52665e;
+            --color-borde: #c4d7ce;
+            --color-blanco: #ffffff;
+
+            /* Acentos funcionales */
+            --color-exito-bg: #e2f6d5;
+            --color-exito-border: #6b9080;
+            --color-alerta-bg: #fff7d6;
+            --color-alerta-border: #d4a318;
+            --color-error-bg: #fde8e8;
+            --color-error-border: #cb272f;
+            --color-info-bg: #eaf4f4;
+            --color-info-border: #6b9080;
+
+            /* Fuentes */
+            --font-titulos: 'Vidaloka', serif;
+            --font-cuerpo: 'Mukta', sans-serif;
+
+            /* Radios y sombras */
+            --radio-tarjetas: 12px;
+            --radio-inputs: 10px;
+            --radio-botones: 9999px;
+            --sombra-suave: 0 4px 14px rgba(107, 144, 128, 0.10);
+            --sombra-card: 0 2px 8px rgba(31, 46, 43, 0.05);
+        }
+
+        /* 1. Fondo global y tipografía base */
+        .stApp {
+            background-color: var(--color-fondo-base);
+            font-family: var(--font-cuerpo);
+            color: var(--color-texto);
+        }
+
+        /* 2. Ocultar header nativo, menú de hamburguesa y footer */
+        #MainMenu, footer, header[data-testid="stHeader"] {
+            visibility: hidden;
+            height: 0;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 3. Tipografía jerárquica */
+        h1, h2, h3 {
+            font-family: var(--font-titulos) !important;
+            color: var(--color-primario) !important;
+            font-weight: 400 !important;
+            letter-spacing: -0.02em;
+        }
+
+        p, span, label, div {
+            font-family: var(--font-cuerpo);
+        }
+
+        /* 4. Barra lateral (Sidebar) */
+        [data-testid="stSidebar"] {
+            background-color: var(--color-fondo-tarjeta) !important;
+            border-right: 1px solid var(--color-borde) !important;
+        }
+
+        [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
+            color: var(--color-primario) !important;
+        }
+
+        /* 5. Botones */
+        .stButton > button {
+            border-radius: var(--radio-botones) !important;
+            font-family: var(--font-cuerpo) !important;
+            font-weight: 600 !important;
+            font-size: 15px !important;
+            padding: 0.5rem 1.4rem !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border: 1px solid var(--color-primario) !important;
+            background-color: var(--color-blanco) !important;
+            color: var(--color-primario) !important;
+            box-shadow: none !important;
+        }
+
+        .stButton > button:hover {
+            background-color: var(--color-fondo-suave) !important;
+            color: var(--color-texto) !important;
+            border-color: var(--color-primario) !important;
+            transform: translateY(-1px);
+        }
+
+        /* Botón de acción principal */
+        .stButton > button[kind="primary"] {
+            background-color: var(--color-primario) !important;
+            color: var(--color-blanco) !important;
+            border: 1px solid var(--color-primario) !important;
+            box-shadow: var(--sombra-suave) !important;
+            padding: 0.65rem 1.5rem !important;
+        }
+
+        .stButton > button[kind="primary"]:hover {
+            background-color: #58796b !important;
+            border-color: #58796b !important;
+            color: var(--color-blanco) !important;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(107, 144, 128, 0.25) !important;
+        }
+
+        /* 6. Entradas de datos (Text inputs, Number inputs) */
+        div[data-baseweb="input"] {
+            background-color: var(--color-blanco) !important;
+            border-radius: var(--radio-inputs) !important;
+            border: 1px solid var(--color-borde) !important;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        div[data-baseweb="input"]:focus-within {
+            border-color: var(--color-primario) !important;
+            box-shadow: 0 0 0 2px rgba(107, 144, 128, 0.2) !important;
+        }
+
+        input {
+            color: var(--color-texto) !important;
+            font-family: var(--font-cuerpo) !important;
+        }
+
+        label[data-testid="stWidgetLabel"] p {
+            font-weight: 600 !important;
+            color: var(--color-texto) !important;
+            font-size: 14.5px !important;
+        }
+
+        /* 7. Métricas (st.metric en formato de tarjeta moderna) */
+        div[data-testid="stMetric"] {
+            background-color: var(--color-blanco);
+            border-radius: var(--radio-tarjetas);
+            padding: 1.1rem 1.2rem;
+            border: 1px solid var(--color-fondo-suave);
+            box-shadow: var(--sombra-card);
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        div[data-testid="stMetric"]:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--sombra-suave);
+        }
+
+        div[data-testid="stMetricLabel"] p {
+            color: var(--color-texto-muted) !important;
+            font-size: 13.5px !important;
+            font-weight: 500 !important;
+        }
+
+        div[data-testid="stMetricValue"] div {
+            color: var(--color-primario) !important;
+            font-weight: 700 !important;
+            font-family: var(--font-cuerpo) !important;
+        }
+
+        /* 8. Alertas / Notificaciones */
+        div[data-testid="stAlert"] {
+            border-radius: var(--radio-inputs) !important;
+            font-family: var(--font-cuerpo) !important;
+            border-width: 1px !important;
+            border-style: solid !important;
+        }
+
+        div[data-testid="stAlert"][kind="info"] {
+            background-color: var(--color-info-bg) !important;
+            border-color: var(--color-info-border) !important;
+            color: var(--color-texto) !important;
+        }
+
+        div[data-testid="stAlert"][kind="warning"] {
+            background-color: var(--color-alerta-bg) !important;
+            border-color: var(--color-alerta-border) !important;
+            color: #5c4300 !important;
+        }
+
+        div[data-testid="stAlert"][kind="success"] {
+            background-color: var(--color-exito-bg) !important;
+            border-color: var(--color-exito-border) !important;
+            color: #1b381e !important;
+        }
+
+        div[data-testid="stAlert"][kind="error"] {
+            background-color: var(--color-error-bg) !important;
+            border-color: var(--color-error-border) !important;
+            color: #721c24 !important;
+        }
+
+        /* 9. Bloques de código (Guion para llamada) */
+        pre, code {
+            background-color: var(--color-fondo-tarjeta) !important;
+            border: 1px solid var(--color-borde) !important;
+            border-radius: var(--radio-inputs) !important;
+            color: var(--color-texto) !important;
+            font-family: monospace !important;
+        }
+
+        /* 10. Divisores y espaciados */
+        hr {
+            border: 0;
+            border-top: 1px solid var(--color-fondo-suave) !important;
+            margin: 1.8rem 0 !important;
+        }
+
+        /* 11. Opciones de Radio y Checkboxes */
+        div[role="radiogroup"] label {
+            background-color: var(--color-blanco);
+            padding: 6px 14px;
+            border-radius: var(--radio-botones);
+            border: 1px solid var(--color-borde);
+            margin-right: 8px;
+            transition: all 0.2s ease;
+        }
+
+        div[role="radiogroup"] label:hover {
+            border-color: var(--color-primario);
+            background-color: var(--color-fondo-tarjeta);
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def cargar_configuracion() -> dict:
     """Carga los parámetros normativos y textos fijos desde el archivo JSON sin persistir datos."""
     ruta_cfg = Path(__file__).parent / "config_ley.json"
@@ -41,6 +278,7 @@ def limpiar_formulario() -> None:
 
 
 st.set_page_config(page_title="Calculadora IVA 7% RESICO", layout="centered")
+aplicar_estilos()
 
 config = cargar_configuracion()
 
