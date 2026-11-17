@@ -7,235 +7,268 @@ import calc_iva7
 
 
 def aplicar_estilos() -> None:
-    """Inyecta CSS personalizado basado en la paleta y tokens de diseño."""
+    """Inyecta CSS personalizado inspirado en el sistema de diseño Wise."""
     st.markdown(
         """
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700&family=Vidaloka&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
 
         :root {
-            /* Paleta principal */
-            --color-primario: #6b9080;
-            --color-secundario: #a4c3b2;
-            --color-fondo-suave: #cce3de;
-            --color-fondo-tarjeta: #eaf4f4;
-            --color-fondo-base: #f6fff8;
+            /* Paleta Wise Style Reference */
+            --color-forest-ink: #163300;
+            --color-lime-voltage: #9fe870;
+            --color-lime-hover: #8cd85c;
+            --color-spruce: #054d28;
+            --color-linen-mist: #e2f6d5;
+            --color-signal-blue: #0b4c72;
+            --color-alarm-red: #cb272f;
+            --color-charcoal: #454745;
+            --color-obsidian: #0e0f0c;
+            --color-pebble: #868685;
+            --color-slate: #6a6c6a;
+            --color-fog: #e8ebe6;
+            --color-paper: #ffffff;
 
-            /* Tipografía y neutros */
-            --color-texto: #1f2e2b;
-            --color-texto-muted: #52665e;
-            --color-borde: #c4d7ce;
-            --color-blanco: #ffffff;
+            /* Tipografía */
+            --font-principal: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 
-            /* Acentos funcionales */
-            --color-exito-bg: #e2f6d5;
-            --color-exito-border: #6b9080;
-            --color-alerta-bg: #fff7d6;
-            --color-alerta-border: #d4a318;
-            --color-error-bg: #fde8e8;
-            --color-error-border: #cb272f;
-            --color-info-bg: #eaf4f4;
-            --color-info-border: #6b9080;
-
-            /* Fuentes */
-            --font-titulos: 'Vidaloka', serif;
-            --font-cuerpo: 'Mukta', sans-serif;
-
-            /* Radios y sombras */
-            --radio-tarjetas: 12px;
-            --radio-inputs: 10px;
-            --radio-botones: 9999px;
-            --sombra-suave: 0 4px 14px rgba(107, 144, 128, 0.10);
-            --sombra-card: 0 2px 8px rgba(31, 46, 43, 0.05);
+            /* Radios y elevación */
+            --radius-pill: 9999px;
+            --radius-card: 16px;
+            --radius-input: 10px;
+            --shadow-card: 0 6px 20px rgba(14, 15, 12, 0.06);
         }
 
-        /* 1. Fondo global y tipografía base */
-        .stApp {
-            background-color: var(--color-fondo-base);
-            font-family: var(--font-cuerpo);
-            color: var(--color-texto);
+        /* 1. Forzar lienzo principal (Paper #ffffff) y fuente base */
+        html, body, [data-testid="stAppViewContainer"], [data-testid="stMain"] {
+            background-color: var(--color-paper) !important;
+            color: var(--color-charcoal) !important;
+            font-family: var(--font-principal) !important;
         }
 
-        /* 2. Ocultar header nativo, menú de hamburguesa y footer */
-        #MainMenu, footer, header[data-testid="stHeader"] {
-            visibility: hidden;
-            height: 0;
-            margin: 0;
-            padding: 0;
+        [data-testid="stMainBlockContainer"] {
+            max-width: 860px !important;
+            padding-top: 2.5rem !important;
+            padding-bottom: 4rem !important;
         }
 
-        /* 3. Tipografía jerárquica */
-        h1, h2, h3 {
-            font-family: var(--font-titulos) !important;
-            color: var(--color-primario) !important;
-            font-weight: 400 !important;
-            letter-spacing: -0.02em;
+        /* 2. Ocultar barra superior, menú hamburguesa y footer sin romper botones de sidebar */
+        #MainMenu, footer {
+            display: none !important;
+        }
+        header[data-testid="stHeader"] {
+            background: transparent !important;
         }
 
-        p, span, label, div {
-            font-family: var(--font-cuerpo);
+        /* 3. Tipografía jerárquica estilo Wise (Black 900 con tracking cerrado) */
+        h1 {
+            font-family: var(--font-principal) !important;
+            font-weight: 900 !important;
+            color: var(--color-obsidian) !important;
+            letter-spacing: -0.035em !important;
+            line-height: 1.05 !important;
+            font-size: 2.6rem !important;
+            margin-bottom: 1rem !important;
         }
 
-        /* 4. Barra lateral (Sidebar) */
-        [data-testid="stSidebar"] {
-            background-color: var(--color-fondo-tarjeta) !important;
-            border-right: 1px solid var(--color-borde) !important;
+        h2, h3 {
+            font-family: var(--font-principal) !important;
+            font-weight: 700 !important;
+            color: var(--color-forest-ink) !important;
+            letter-spacing: -0.02em !important;
+        }
+
+        p, span, label, div, li {
+            font-family: var(--font-principal) !important;
+            color: var(--color-charcoal);
+        }
+
+        /* 4. Sidebar (Superficie Fog #e8ebe6) */
+        [data-testid="stSidebar"], [data-testid="stSidebar"] > div:first-child {
+            background-color: var(--color-fog) !important;
+            border-right: 1px solid rgba(22, 51, 0, 0.12) !important;
         }
 
         [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3 {
-            color: var(--color-primario) !important;
+            color: var(--color-forest-ink) !important;
+            font-weight: 800 !important;
         }
 
-        /* 5. Botones */
+        /* 5. Botones secundarios (Outlined Pill Button - Blanco + borde Forest Ink) */
         .stButton > button {
-            border-radius: var(--radio-botones) !important;
-            font-family: var(--font-cuerpo) !important;
+            border-radius: var(--radius-pill) !important;
+            background-color: var(--color-paper) !important;
+            color: var(--color-forest-ink) !important;
+            border: 1.5px solid var(--color-forest-ink) !important;
+            font-family: var(--font-principal) !important;
             font-weight: 600 !important;
             font-size: 15px !important;
-            padding: 0.5rem 1.4rem !important;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            border: 1px solid var(--color-primario) !important;
-            background-color: var(--color-blanco) !important;
-            color: var(--color-primario) !important;
+            padding: 0.55rem 1.4rem !important;
+            transition: all 0.18s ease !important;
             box-shadow: none !important;
         }
 
         .stButton > button:hover {
-            background-color: var(--color-fondo-suave) !important;
-            color: var(--color-texto) !important;
-            border-color: var(--color-primario) !important;
+            background-color: var(--color-linen-mist) !important;
+            color: var(--color-forest-ink) !important;
+            border-color: var(--color-forest-ink) !important;
+        }
+
+        .stButton > button p {
+            color: var(--color-forest-ink) !important;
+            font-weight: 600 !important;
+        }
+
+        /* 6. Botón Primario (Primary CTA Pill - Lime Voltage #9fe870 + texto Forest Ink) */
+        .stButton > button[kind="primary"],
+        .stButton > button[data-testid="baseButton-primary"] {
+            background-color: var(--color-lime-voltage) !important;
+            color: var(--color-forest-ink) !important;
+            border: none !important;
+            border-radius: var(--radius-pill) !important;
+            font-weight: 700 !important;
+            font-size: 16px !important;
+            padding: 0.75rem 2rem !important;
+            box-shadow: 0 4px 12px rgba(22, 51, 0, 0.12) !important;
+        }
+
+        .stButton > button[kind="primary"]:hover,
+        .stButton > button[data-testid="baseButton-primary"]:hover {
+            background-color: var(--color-lime-hover) !important;
             transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(22, 51, 0, 0.18) !important;
         }
 
-        /* Botón de acción principal */
-        .stButton > button[kind="primary"] {
-            background-color: var(--color-primario) !important;
-            color: var(--color-blanco) !important;
-            border: 1px solid var(--color-primario) !important;
-            box-shadow: var(--sombra-suave) !important;
-            padding: 0.65rem 1.5rem !important;
+        .stButton > button[kind="primary"] p,
+        .stButton > button[data-testid="baseButton-primary"] p {
+            color: var(--color-forest-ink) !important;
+            font-weight: 700 !important;
         }
 
-        .stButton > button[kind="primary"]:hover {
-            background-color: #58796b !important;
-            border-color: #58796b !important;
-            color: var(--color-blanco) !important;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 18px rgba(107, 144, 128, 0.25) !important;
+        /* 7. Inputs y Number Inputs (10px radius, borde Pebble, focus Forest Ink) */
+        div[data-baseweb="input"], div[data-baseweb="base-input"] {
+            background-color: var(--color-paper) !important;
+            border-radius: var(--radius-input) !important;
+            border: 1px solid var(--color-pebble) !important;
+            transition: border-color 0.15s ease !important;
         }
 
-        /* 6. Entradas de datos (Text inputs, Number inputs) */
-        div[data-baseweb="input"] {
-            background-color: var(--color-blanco) !important;
-            border-radius: var(--radio-inputs) !important;
-            border: 1px solid var(--color-borde) !important;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        div[data-baseweb="input"]:focus-within {
-            border-color: var(--color-primario) !important;
-            box-shadow: 0 0 0 2px rgba(107, 144, 128, 0.2) !important;
+        div[data-baseweb="input"]:focus-within, div[data-baseweb="base-input"]:focus-within {
+            border: 2px solid var(--color-forest-ink) !important;
+            box-shadow: none !important;
         }
 
         input {
-            color: var(--color-texto) !important;
-            font-family: var(--font-cuerpo) !important;
+            color: var(--color-obsidian) !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            background-color: transparent !important;
+        }
+
+        /* Botones + / - de number_input */
+        button[data-testid="stNumberInputStepDown"],
+        button[data-testid="stNumberInputStepUp"] {
+            background-color: var(--color-fog) !important;
+            color: var(--color-forest-ink) !important;
+            border-radius: 6px !important;
         }
 
         label[data-testid="stWidgetLabel"] p {
+            color: var(--color-obsidian) !important;
             font-weight: 600 !important;
-            color: var(--color-texto) !important;
             font-size: 14.5px !important;
+            margin-bottom: 4px !important;
         }
 
-        /* 7. Métricas (st.metric en formato de tarjeta moderna) */
-        div[data-testid="stMetric"] {
-            background-color: var(--color-blanco);
-            border-radius: var(--radio-tarjetas);
-            padding: 1.1rem 1.2rem;
-            border: 1px solid var(--color-fondo-suave);
-            box-shadow: var(--sombra-card);
-            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        /* 8. Radio Buttons como Segmented Control estilo Wise */
+        div[role="radiogroup"] {
+            gap: 10px !important;
         }
 
-        div[data-testid="stMetric"]:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--sombra-suave);
-        }
-
-        div[data-testid="stMetricLabel"] p {
-            color: var(--color-texto-muted) !important;
-            font-size: 13.5px !important;
-            font-weight: 500 !important;
-        }
-
-        div[data-testid="stMetricValue"] div {
-            color: var(--color-primario) !important;
-            font-weight: 700 !important;
-            font-family: var(--font-cuerpo) !important;
-        }
-
-        /* 8. Alertas / Notificaciones */
-        div[data-testid="stAlert"] {
-            border-radius: var(--radio-inputs) !important;
-            font-family: var(--font-cuerpo) !important;
-            border-width: 1px !important;
-            border-style: solid !important;
-        }
-
-        div[data-testid="stAlert"][kind="info"] {
-            background-color: var(--color-info-bg) !important;
-            border-color: var(--color-info-border) !important;
-            color: var(--color-texto) !important;
-        }
-
-        div[data-testid="stAlert"][kind="warning"] {
-            background-color: var(--color-alerta-bg) !important;
-            border-color: var(--color-alerta-border) !important;
-            color: #5c4300 !important;
-        }
-
-        div[data-testid="stAlert"][kind="success"] {
-            background-color: var(--color-exito-bg) !important;
-            border-color: var(--color-exito-border) !important;
-            color: #1b381e !important;
-        }
-
-        div[data-testid="stAlert"][kind="error"] {
-            background-color: var(--color-error-bg) !important;
-            border-color: var(--color-error-border) !important;
-            color: #721c24 !important;
-        }
-
-        /* 9. Bloques de código (Guion para llamada) */
-        pre, code {
-            background-color: var(--color-fondo-tarjeta) !important;
-            border: 1px solid var(--color-borde) !important;
-            border-radius: var(--radio-inputs) !important;
-            color: var(--color-texto) !important;
-            font-family: monospace !important;
-        }
-
-        /* 10. Divisores y espaciados */
-        hr {
-            border: 0;
-            border-top: 1px solid var(--color-fondo-suave) !important;
-            margin: 1.8rem 0 !important;
-        }
-
-        /* 11. Opciones de Radio y Checkboxes */
         div[role="radiogroup"] label {
-            background-color: var(--color-blanco);
-            padding: 6px 14px;
-            border-radius: var(--radio-botones);
-            border: 1px solid var(--color-borde);
-            margin-right: 8px;
-            transition: all 0.2s ease;
+            background-color: var(--color-fog) !important;
+            border: 1px solid transparent !important;
+            border-radius: var(--radius-pill) !important;
+            padding: 8px 18px !important;
+            transition: all 0.15s ease !important;
         }
 
         div[role="radiogroup"] label:hover {
-            border-color: var(--color-primario);
-            background-color: var(--color-fondo-tarjeta);
+            background-color: var(--color-linen-mist) !important;
+        }
+
+        div[role="radiogroup"] label[data-checked="true"],
+        div[role="radiogroup"] label:has(input:checked) {
+            background-color: var(--color-lime-voltage) !important;
+            border-color: var(--color-forest-ink) !important;
+        }
+
+        div[role="radiogroup"] label:has(input:checked) p {
+            color: var(--color-forest-ink) !important;
+            font-weight: 700 !important;
+        }
+
+        /* 9. Métricas (Tarjetas con superficie Fog #e8ebe6 y acento Forest Ink) */
+        div[data-testid="stMetric"] {
+            background-color: var(--color-fog) !important;
+            border-radius: var(--radius-card) !important;
+            padding: 1.25rem 1.35rem !important;
+            border: 1px solid rgba(22, 51, 0, 0.10) !important;
+            box-shadow: var(--shadow-card) !important;
+        }
+
+        div[data-testid="stMetricLabel"] p {
+            color: var(--color-slate) !important;
+            font-size: 13.5px !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.03em !important;
+        }
+
+        div[data-testid="stMetricValue"] div {
+            color: var(--color-forest-ink) !important;
+            font-weight: 900 !important;
+            font-size: 1.9rem !important;
+            letter-spacing: -0.03em !important;
+        }
+
+        /* 10. Alertas (Status cards limpias y contrastadas) */
+        div[data-testid="stAlert"] {
+            border-radius: var(--radius-card) !important;
+            padding: 1rem 1.25rem !important;
+            border: 1px solid rgba(22, 51, 0, 0.15) !important;
+        }
+
+        div[data-testid="stAlert"][data-baseweb="notification"] {
+            background-color: var(--color-fog) !important;
+        }
+
+        /* Éxito con Linen Mist */
+        div[data-testid="stAlert"]:has(svg[data-testid="stAlertDynamicIcon"]) {
+            border-left: 6px solid var(--color-forest-ink) !important;
+        }
+
+        /* 11. Bloque de código (Guion para la llamada - Dark Card Forest Ink) */
+        [data-testid="stCodeBlock"], pre {
+            background-color: var(--color-forest-ink) !important;
+            border-radius: 18px !important;
+            padding: 1.25rem !important;
+            border: none !important;
+        }
+
+        [data-testid="stCodeBlock"] code, pre code, pre span {
+            color: var(--color-linen-mist) !important;
+            font-family: 'Inter', monospace !important;
+            font-size: 14.5px !important;
+            line-height: 1.6 !important;
+            background: transparent !important;
+        }
+
+        /* 12. Divisores */
+        hr {
+            border: none !important;
+            border-top: 1px solid var(--color-fog) !important;
+            margin: 2rem 0 !important;
         }
         </style>
         """,
