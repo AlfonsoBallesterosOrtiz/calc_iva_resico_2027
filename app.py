@@ -262,20 +262,56 @@ def aplicar_estilos() -> None:
             letter-spacing: -0.03em !important;
         }
 
-        /* 10. Alertas (Status cards limpias y contrastadas) */
-        div[data-testid="stAlert"] {
+        /* 10. Alertas (ESTATUS LEGAL, CONVIENE, NO CONVIENE, ZONA GRIS - Alto contraste garantizado) */
+        div[data-testid="stAlert"],
+        div[data-testid="stAlertContainer"] {
             border-radius: var(--radius-card) !important;
             padding: 1rem 1.25rem !important;
-            border: 1px solid rgba(22, 51, 0, 0.15) !important;
-        }
-
-        div[data-testid="stAlert"][data-baseweb="notification"] {
+            border: 1.5px solid var(--color-forest-ink) !important;
+            border-left: 6px solid var(--color-forest-ink) !important;
             background-color: var(--color-fog) !important;
         }
 
-        /* Éxito con Linen Mist */
-        div[data-testid="stAlert"]:has(svg[data-testid="stAlertDynamicIcon"]) {
-            border-left: 6px solid var(--color-forest-ink) !important;
+        /* Forzar texto negro/verde oscuro en TODOS los elementos internos de cualquier alerta */
+        div[data-testid="stAlert"] p,
+        div[data-testid="stAlert"] span,
+        div[data-testid="stAlert"] strong,
+        div[data-testid="stAlert"] b,
+        div[data-testid="stAlert"] div[data-testid="stMarkdownContainer"] {
+            color: var(--color-obsidian) !important;
+            opacity: 1 !important;
+            font-size: 15.5px !important;
+            line-height: 1.5 !important;
+        }
+
+        div[data-testid="stAlert"] strong,
+        div[data-testid="stAlert"] b {
+            color: var(--color-forest-ink) !important;
+            font-weight: 800 !important;
+        }
+
+        /* Diferenciación visual sutil por tipo de notificación manteniendo legibilidad total */
+        div[data-testid="stAlert"]:has(div[data-testid="stAlertContentSuccess"]) {
+            background-color: var(--color-linen-mist) !important;
+            border-color: var(--color-forest-ink) !important;
+        }
+
+        div[data-testid="stAlert"]:has(div[data-testid="stAlertContentWarning"]) {
+            background-color: #fef6d8 !important;
+            border-color: #8a6100 !important;
+            border-left-color: #b88100 !important;
+        }
+
+        div[data-testid="stAlert"]:has(div[data-testid="stAlertContentError"]) {
+            background-color: #fdeaea !important;
+            border-color: var(--color-alarm-red) !important;
+            border-left-color: var(--color-alarm-red) !important;
+        }
+
+        div[data-testid="stAlert"]:has(div[data-testid="stAlertContentInfo"]) {
+            background-color: var(--color-fog) !important;
+            border-color: var(--color-signal-blue) !important;
+            border-left-color: var(--color-signal-blue) !important;
         }
 
         /* 11. Bloque de código (Guion para la llamada - Dark Card Forest Ink) */
