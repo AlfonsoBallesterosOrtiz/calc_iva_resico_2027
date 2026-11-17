@@ -10,4 +10,6 @@ __pycache__/
 *.xml 
 *.zip 
 .DS_Store
+app v1.0.py
 app v2.0.py
+app v3.0.py

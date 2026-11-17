@@ -145,32 +145,62 @@ def aplicar_estilos() -> None:
             font-weight: 700 !important;
         }
 
-        /* 7. Inputs y Number Inputs (10px radius, borde Pebble, focus Forest Ink) */
-        div[data-baseweb="input"], div[data-baseweb="base-input"] {
+        /* 7. Inputs y Number Inputs (Alto contraste: fondo blanco puro y texto oscuro) */
+        [data-testid="stTextInput"] div[data-baseweb="input"],
+        [data-testid="stNumberInput"] div[data-baseweb="input"],
+        div[data-baseweb="input"],
+        div[data-baseweb="base-input"],
+        div[data-baseweb="base-input"] > div {
             background-color: var(--color-paper) !important;
+            color: var(--color-obsidian) !important;
             border-radius: var(--radius-input) !important;
-            border: 1px solid var(--color-pebble) !important;
+        }
+
+        div[data-baseweb="input"] {
+            border: 1.5px solid var(--color-pebble) !important;
             transition: border-color 0.15s ease !important;
         }
 
-        div[data-baseweb="input"]:focus-within, div[data-baseweb="base-input"]:focus-within {
+        div[data-baseweb="input"]:focus-within {
             border: 2px solid var(--color-forest-ink) !important;
             box-shadow: none !important;
         }
 
-        input {
+        [data-testid="stTextInput"] input,
+        [data-testid="stNumberInput"] input,
+        div[data-baseweb="input"] input,
+        div[data-baseweb="base-input"] input {
+            background-color: var(--color-paper) !important;
             color: var(--color-obsidian) !important;
+            -webkit-text-fill-color: var(--color-obsidian) !important;
+            caret-color: var(--color-forest-ink) !important;
             font-weight: 500 !important;
             font-size: 16px !important;
-            background-color: transparent !important;
+        }
+
+        input::placeholder {
+            color: var(--color-slate) !important;
+            -webkit-text-fill-color: var(--color-slate) !important;
+            opacity: 1 !important;
         }
 
         /* Botones + / - de number_input */
+        [data-testid="stNumberInput"] button,
         button[data-testid="stNumberInputStepDown"],
         button[data-testid="stNumberInputStepUp"] {
             background-color: var(--color-fog) !important;
             color: var(--color-forest-ink) !important;
+            border: none !important;
             border-radius: 6px !important;
+        }
+
+        [data-testid="stNumberInput"] button:hover {
+            background-color: var(--color-linen-mist) !important;
+        }
+
+        [data-testid="stNumberInput"] button svg {
+            fill: var(--color-forest-ink) !important;
+            color: var(--color-forest-ink) !important;
         }
 
         label[data-testid="stWidgetLabel"] p {
