@@ -1,7 +1,7 @@
 {
-  "fecha_revision": "06-nov-2026",
+  "fecha_revision": "16-nov-2026",
   "referencia_legal": "Ley de Ingresos de la Federación 2027, artículo 25, fracción XVIII [VERIFICAR_NUMERACION_DOF]",
-  "estatus": "La Ley de Ingresos 2027 fue aprobada por el Congreso (Senado, 27-oct-2026) y enviada al Ejecutivo. Falta su publicación en el DOF y que el SAT emita las reglas del aviso. Revisado el [FECHA_REVISION].",
+  "estatus": "Ley de Ingresos de la Federación (LIF) para 2027 ya fueron aprobadas por el Congreso y publicadas en el Diario Oficial de la Federación (DOF) a principios de noviembre de 2026, por lo que dejaron de ser iniciativa y entrarán en vigor el 1 de enero de 2027. Revisado el [FECHA_REVISION].",
   "tasas": {
     "iva_general": 0.16,
     "iva_frontera": 0.08,
