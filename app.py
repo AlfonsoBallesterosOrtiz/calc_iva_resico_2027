@@ -361,6 +361,7 @@ def aplicar_ejemplo(region: str, ing: int, gas: int, ret: int, compra: int, exen
     st.session_state["gastos"] = gas
     st.session_state["iva_retenido"] = ret
     st.session_state["compra_grande"] = compra
+    st.session_state["importaciones_anuales"] = 0
     st.session_state["hay_exentos_o_tasa0"] = exentos
 
 
@@ -371,6 +372,7 @@ def limpiar_formulario() -> None:
     st.session_state["gastos"] = 0
     st.session_state["iva_retenido"] = 0
     st.session_state["compra_grande"] = 0
+    st.session_state["importaciones_anuales"] = 0
     st.session_state["hay_exentos_o_tasa0"] = False
     st.session_state["nombre_prospecto"] = ""
     st.session_state["notas_llamada"] = ""
@@ -387,7 +389,10 @@ if "region" not in st.session_state:
 # 1. Título y recuadro de estatus legal normativo
 st.title("Calculadora interna: IVA al 7 % en RESICO 2027")
 
-texto_estatus = config["estatus"].replace("[FECHA_REVISION]", config.get("fecha_revision", "06-nov-2026"))
+texto_estatus = config["estatus"].replace(
+    "[FECHA_REVISION]",
+    config.get("fecha_revision", "13-nov-2026 (DOF LIF 2027)")
+)
 st.warning(f"**ESTATUS LEGAL:** {texto_estatus}")
 
 # 2. Barra lateral con ejemplos y limpieza
@@ -468,11 +473,20 @@ compra_grande = st.number_input(
     help="Compra única anual de equipo o mobiliario indispensable con IVA."
 )
 
+importaciones_anuales = st.number_input(
+    "Importaciones de bienes tangibles al año, sin IVA (opcional)",
+    min_value=0,
+    step=1000,
+    format="%d",
+    key="importaciones_anuales",
+    help="Si importa mercancía o equipo: paga IVA general en aduana (no acreditable con esta opción) y si rebasa $5,000,000 MXN al año queda excluido."
+)
+
 st.write("")
 btn_calcular = st.button("Calcular", type="primary", use_container_width=True)
 
 # 4. Procesamiento y presentación de resultados
-if btn_calcular or ingresos > 0 or hay_exentos_o_tasa0:
+if btn_calcular or ingresos > 0 or hay_exentos_o_tasa0 or importaciones_anuales > 0:
     res = calc_iva7.calcular_comparativa(
         region=region,
         ingresos=float(ingresos),
@@ -480,6 +494,7 @@ if btn_calcular or ingresos > 0 or hay_exentos_o_tasa0:
         gastos=float(gastos),
         iva_retenido=float(iva_retenido),
         compra_grande=float(compra_grande),
+        importaciones_anuales=float(importaciones_anuales),
         config=config
     )
 
@@ -494,8 +509,8 @@ if btn_calcular or ingresos > 0 or hay_exentos_o_tasa0:
     if res.veredicto == "CONVIENE":
         st.success(
             f"✅ **CONVIENE:** Con estos datos, la opción del 7 % podría costar aproximadamente "
-            f"{ahorro_abs} menos al año. Antes de decidir hay que confirmar el caso: el aviso al SAT "
-            f"es obligatorio y la decisión vale todo el año."
+            f"{ahorro_abs} menos al año. **Reglas críticas:** el aviso al SAT debe presentarse dentro de los "
+            f"**30 días siguientes al primer cobro del año**, aplica por meses completos y es irrevocable en todo el ejercicio."
         )
     elif res.veredicto == "NO_CONVIENE":
         st.error(
@@ -526,7 +541,7 @@ if btn_calcular or ingresos > 0 or hay_exentos_o_tasa0:
             sub_normal = f"Promedio mensual: {formatear_moneda(res.pago_normal_anual / 12)}"
 
         if res.opcion_matematica < 0:
-            etiqueta_opcion = "Posible saldo a favor con la opción (por confirmar)"
+            etiqueta_opcion = "Remanente por retenciones (devolución no garantizada)"
             valor_opcion_str = formatear_moneda(res.saldo_favor_opcion)
             sub_opcion = f"Pago inmediato estimado: $0 (remanente: {formatear_moneda(res.saldo_favor_opcion)})"
         else:
@@ -561,7 +576,7 @@ if btn_calcular or ingresos > 0 or hay_exentos_o_tasa0:
             f"**{formatear_moneda(res.equilibrio_pesos)}** (≈ {pct_eq:.1f} % de lo que cobra)."
         )
 
-        # Guion para la llamada (4 a 6 líneas listas para copiar)
+        # Guion para la llamada (6 líneas listas para copiar)
         st.subheader("Guion para la llamada")
         if res.pago_normal_anual < 0:
             resumen_actual = f"hoy tendrías un saldo a favor estimado de {formatear_moneda(res.pago_normal_anual)}"
@@ -569,7 +584,10 @@ if btn_calcular or ingresos > 0 or hay_exentos_o_tasa0:
             resumen_actual = f"hoy pagarías aproximadamente {formatear_moneda(res.pago_normal_anual)} de IVA al año"
 
         if res.opcion_matematica < 0:
-            resumen_op = f"con el 7 % pagarías $0 y generarías un posible saldo a favor de {formatear_moneda(res.saldo_favor_opcion)}"
+            resumen_op = (
+                f"con el 7 % pagarías $0 y quedaría un remanente de {formatear_moneda(res.saldo_favor_opcion)} "
+                f"por retenciones (sujeto a reglas del SAT para acreditarlo)"
+            )
         else:
             resumen_op = f"con la opción al 7 % pagarías cerca de {formatear_moneda(res.opcion_pago_anual)}"
 
@@ -584,8 +602,9 @@ if btn_calcular or ingresos > 0 or hay_exentos_o_tasa0:
             f"• Con tus ingresos anuales proyectados de {formatear_moneda(res.b_anual)} y tus gastos declarados,",
             f"• {resumen_actual}, mientras que {resumen_op}.",
             f"• En conclusión: {resumen_ahorro}.",
+            "• Seguirás facturando con IVA normal (16 % / 8 %), pero solo enteras 7 % al SAT; la diferencia que conservas no paga ISR.",
             f"• El punto de equilibrio es {formatear_moneda(res.equilibrio_pesos)} de IVA acreditable anual (si gastas más con factura, la opción pierde ventaja).",
-            "• Recuerda que esta es una estimación; revisamos su caso con documentos antes de decidir."
+            "• Importante: Tenemos 30 días tras tu primer cobro del año para presentar el aviso y aplica todo el año. Revisamos tus documentos antes de decidir."
         ]
         st.code("\n".join(lineas_guion), language="markdown")
 
@@ -597,7 +616,7 @@ for idx, salv in enumerate(config["salvedades"], start=1):
 
 # 6. Aspectos pendientes de confirmar
 st.write("")
-st.markdown("**Pendiente de confirmar (DOF / reglas misceláneas SAT):**")
+st.markdown("**Pendiente de confirmar (Reglas Misceláneas SAT):**")
 for pendiente in config["por_validar"]:
     st.caption(f"• {pendiente}")
 

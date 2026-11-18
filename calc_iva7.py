@@ -1,4 +1,4 @@
-"""Motor de cálculo determinista para evaluar la opción de IVA al 7 % en RESICO 2027."""
+"""Motor de cálculo determinista para evaluar la opción de IVA al 7 % en RESICO 2027 (LIF DOF 13-11-2026)."""
 
 from dataclasses import dataclass
 from typing import List, Optional
@@ -40,6 +40,7 @@ def calcular_comparativa(
     gastos: float,
     iva_retenido: float = 0.0,
     compra_grande: float = 0.0,
+    importaciones_anuales: float = 0.0,
     config: Optional[dict] = None
 ) -> ResultadoCalculo:
     """Ejecuta la aritmética para comparar el IVA general con la opción del 7 % bajo criterio conservador."""
@@ -50,6 +51,7 @@ def calcular_comparativa(
     t_op = float(config["tasas"]["iva_opcion_resico"])
     zona_gris_pct = float(config["zona_gris_pct"])
     limite_resico = float(config["limite_resico_pf_anual"])
+    limite_importaciones = float(config.get("limite_importaciones_anual", limite_resico))
 
     avisos: List[str] = []
 
@@ -90,6 +92,20 @@ def calcular_comparativa(
             "No tributaría en este régimen."
         )
 
+    if float(importaciones_anuales) > 0:
+        es_caso_especial = True
+        if float(importaciones_anuales) > limite_importaciones:
+            avisos.append(
+                f"Las importaciones anuales (${importaciones_anuales:,.0f}) rebasan el tope legal de "
+                f"${limite_importaciones:,.0f} MXN del Art. 25, Fracc. XVIII; queda excluido de la opción."
+            )
+        else:
+            avisos.append(
+                f"Reporta importaciones de bienes tangibles (${importaciones_anuales:,.0f} al año): "
+                "pagan IVA general en aduana (16 % / 8 %) de forma definitiva sin derecho a acreditamiento. "
+                "Requiere ajuste manual de flujo."
+            )
+
     if ingresos <= 0:
         es_caso_especial = True
         avisos.append("Los ingresos cobrados mensuales deben ser mayores a cero para realizar la estimación.")
@@ -100,8 +116,8 @@ def calcular_comparativa(
 
     if opcion < 0:
         avisos.append(
-            f"Muestra posible saldo a favor de ${saldo_op:,.0f} por confirmar en reglas del SAT. "
-            "El veredicto conservador no cuenta este saldo como dinero recuperado."
+            f"Remanente por retenciones de ${saldo_op:,.0f}: la ley señala que 'únicamente disminuirán' el impuesto; "
+            "no está garantizada su devolución automática (sujeto a reglas misceláneas del SAT)."
         )
 
     if normal < 0 or opcion < 0:

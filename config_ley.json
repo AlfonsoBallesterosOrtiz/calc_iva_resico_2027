@@ -1,27 +1,28 @@
 {
-  "fecha_revision": "16-nov-2026",
-  "referencia_legal": "Ley de Ingresos de la Federación 2027, artículo 25, fracción XVIII [VERIFICAR_NUMERACION_DOF]",
-  "estatus": "Ley de Ingresos de la Federación (LIF) para 2027 ya fueron aprobadas por el Congreso y publicadas en el Diario Oficial de la Federación (DOF) a principios de noviembre de 2026, por lo que dejaron de ser iniciativa y entrarán en vigor el 1 de enero de 2027. Revisado el [FECHA_REVISION].",
+  "fecha_revision": "13-nov-2026 (DOF LIF 2027)",
+  "referencia_legal": "Ley de Ingresos de la Federación para el Ejercicio Fiscal de 2027, artículo 25, fracción XVIII (DOF 13-11-2026)",
+  "estatus": "LEY VIGENTE A PARTIR DE 2027: Publicada en el DOF el 13-11-2026 (Art. 25, Fracc. XVIII de la LIF 2027). Pendiente únicamente de que el SAT emita las Reglas de Carácter General para presentar el aviso dentro de los 30 días siguientes al primer cobro del año. Revisado el [FECHA_REVISION].",
   "tasas": {
     "iva_general": 0.16,
     "iva_frontera": 0.08,
     "iva_opcion_resico": 0.07
   },
   "limite_resico_pf_anual": 5000000,
-  "verificar_limite": true,
+  "limite_importaciones_anual": 5000000,
+  "verificar_limite": false,
   "zona_gris_pct": 0.015,
   "por_validar": [
-    "Ingresos a tasa 0 % o exentos bajo la opción del 7 %.",
-    "Si el saldo a favor por retenciones en la opción del 7 % se puede acreditar o solicitar en devolución.",
-    "Tratamiento del IVA en importaciones bajo el esquema del 7 %."
+    "Formato y ficha de trámite en Reglas Misceláneas del SAT para presentar el aviso dentro de los 30 días posteriores al primer cobro.",
+    "Mecánica de compensación, acreditamiento o devolución si resulta saldo a favor por retenciones superiores al 7 %.",
+    "Tratamiento específico en reglas del SAT cuando coexistan actividades gravadas con tasa 0 % o exentas."
   ],
   "salvedades": [
-    "Estimación orientativa, no sustituye asesoría fiscal personalizada.",
-    "Se basa en una opción de la Ley de Ingresos 2027 pendiente de publicación en el DOF y de reglas del SAT; puede cambiar.",
-    "Supone promedios mensuales iguales durante 12 meses; en la práctica se calcula mes a mes y los meses con compras grandes pueden dar saldos a favor.",
-    "Solo cuenta IVA acreditable de gastos con factura a nombre del cliente y relacionados con su actividad; si no lo tiene a la mano, el resultado cambia.",
-    "No incluye ISR (en RESICO persona física los gastos no lo reducen) ni retenciones de ISR.",
-    "Ingresos exentos o a tasa 0 %, importaciones y saldos a favor por retenciones requieren revisión (pendiente de confirmar).",
-    "La opción es por todo 2027, por meses completos y exige aviso al SAT dentro de 30 días del primer cobro."
+    "Estimación orientativa para llamadas; no sustituye un dictamen ni asesoría fiscal personalizada con tus documentos.",
+    "Fundamentado en el Art. 25, Fracc. XVIII de la LIF 2027 (DOF 13-11-2026); sujeto a las reglas misceláneas de operación del SAT.",
+    "Supone promedios mensuales iguales durante 12 meses; en la práctica se calcula mes a mes y las compras grandes pueden generar saldos a favor temporales.",
+    "El diferencial de IVA trasladado en factura (16 % / 8 %) contra el 7 % enterado al SAT NO se considera ingreso acumulable para ISR.",
+    "Si realizas importaciones de bienes tangibles, estas pagan IVA general en aduana sin derecho a acreditamiento y no pueden exceder $5,000,000 MXN al año.",
+    "Elimina la complejidad de conciliar acreditamientos de IVA gasto por gasto, pero exige control estricto de flujos cobrados, CFDI y topes anuales para no perder el beneficio.",
+    "La opción aplica por todo 2027, por meses de calendario completos, es irrevocable en el ejercicio y exige aviso al SAT dentro de los 30 días del primer cobro."
   ]
 }

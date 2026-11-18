@@ -1,4 +1,4 @@
-"""Pruebas de regresión unitaria para validar los 10 vectores normativos de prueba."""
+"""Pruebas de regresión unitaria para validar los vectores normativos V1 a V10 y reglas de importación."""
 
 import json
 from pathlib import Path
@@ -71,7 +71,7 @@ class TestCalculadoraIVA7(unittest.TestCase):
         self.assertEqual(res.veredicto, "ZONA_GRIS")
 
     def test_v4_retenciones_saldo_favor_opcion(self):
-        """V4: Opción genera saldo a favor; pago 0 y ahorro conservador de 19,200."""
+        """V4: Opción genera remanente a favor; pago 0 y ahorro conservador de 19,200."""
         res = calc_iva7.calcular_comparativa(
             region="general",
             ingresos=60000,
@@ -157,7 +157,7 @@ class TestCalculadoraIVA7(unittest.TestCase):
         self.assertEqual(res.veredicto, "CASO_ESPECIAL")
 
     def test_v9_criterio_conservador_saldo_favor(self):
-        """V9: Normal da 0 y opción da saldo a favor; criterio conservador da ahorro 0 (ZONA_GRIS)."""
+        """V9: Normal da 0 y opción da remanente a favor; criterio conservador da ahorro 0 (ZONA_GRIS)."""
         res = calc_iva7.calcular_comparativa(
             region="general",
             ingresos=60000,
@@ -195,6 +195,34 @@ class TestCalculadoraIVA7(unittest.TestCase):
         self.assertEqual(res.opcion_pago_anual, 33600)
         self.assertEqual(res.ahorro_anual, -60480)
         self.assertEqual(res.veredicto, "NO_CONVIENE")
+
+    def test_v11_importaciones_dentro_de_limite(self):
+        """V11: Importaciones menores a 5M disparan CASO_ESPECIAL por pago no acreditable en aduana."""
+        res = calc_iva7.calcular_comparativa(
+            region="general",
+            ingresos=80000,
+            hay_exentos_o_tasa0=False,
+            gastos=10000,
+            importaciones_anuales=500000,
+            config=self.config
+        )
+        self.assertTrue(res.es_caso_especial)
+        self.assertEqual(res.veredicto, "CASO_ESPECIAL")
+        self.assertTrue(any("aduana" in av.lower() for av in res.avisos))
+
+    def test_v12_importaciones_exceden_limite(self):
+        """V12: Importaciones mayores a 5M excluyen del beneficio y marcan CASO_ESPECIAL."""
+        res = calc_iva7.calcular_comparativa(
+            region="general",
+            ingresos=100000,
+            hay_exentos_o_tasa0=False,
+            gastos=10000,
+            importaciones_anuales=5500000,
+            config=self.config
+        )
+        self.assertTrue(res.es_caso_especial)
+        self.assertEqual(res.veredicto, "CASO_ESPECIAL")
+        self.assertTrue(any("excluido" in av.lower() for av in res.avisos))
 
 
 if __name__ == "__main__":
